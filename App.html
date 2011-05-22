@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+                      "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>Tilt!</title>
+    <script src="http://localhost:1337/socket.io/socket.io.js"></script> 
+    <script> 
+    var socket = new io.Socket("localhost",{
+        port:1337
+    }); 
+    socket.connect();
+    socket.on('connect', function(){
+        alert("Connected!");
+    }); 
+    socket.on('message', function(msg){
+        console.log(msg);
+    });
+    socket.on('disconnect', function(){
+        alert("You were disconnected from the server.");
+    }); 
+    </script>  
+    <script type="text/javascript" charset="utf-8" src="phonegap.js"></script>
+    <script type="text/javascript" charset="utf-8">
+    // Wait for PhoneGap to load
+    //
+    function onLoad() {
+        document.addEventListener("deviceready", function () {
+            // Update acceleration every .1 seconds
+            var options = { frequency: 100 };
+            navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+        }, false);
+    }
+
+    // onSuccess: Get a snapshot of the current acceleration
+    //
+    function onSuccess(acceleration) {
+        socket.send(JSON.stringify({
+            X:acceleration.x,
+            Y:acceleration.y
+        }));
+    }
+    </script>
+  </head>
+  <body onload="onLoad()">
+    Tilt!
+  </body>
+</html>
