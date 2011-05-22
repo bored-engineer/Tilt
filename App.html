@@ -74,17 +74,22 @@
       alert("You were disconnected from the server.");
     });
     try{
+        function onLoad() {
+            document.addEventListener("deviceready", function () {
+                var options = { frequency: 100 };
+                watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+            }, false);  
+        }
+        function onError() {
+            alert('onError!');
+        }
         function onSuccess(acceleration) {
             accel = {
-                X:acceleration.x*10,
-                Y:acceleration.y*10
+                X:acceleration.x,
+                Y:acceleration.y
             }
-        };
-        
-        function onError() {};
-        
-        var options = { frequency: 100 }; 
-        var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+        }
+
     }catch(e){
         window.ondevicemotion = function(event) {
             accel = {
@@ -115,7 +120,7 @@
     },100); 
     </script>  
   </head>
-  <body>
+  <body onload="onload()">
     <div id="msg"></div>
   </body>
 </html>
