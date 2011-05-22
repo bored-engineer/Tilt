@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+                      "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <title>Tilt!</title>
+    <script src="socket.io/socket.io.js"></script> 
+    <script>
+    function differences(a, b){
+      //b is old
+      //a is new
+      for(key in a){ //In a and not in b
+        if(!b[key]){
+          // create a new div element
+          newDiv = document.createElement("div");
+          newDiv.setAttribute('id', "player_"+key);
+          newDiv.innerHTML = "";
+          newDiv.style.background = "red";
+          newDiv.style.height = "2%";
+          newDiv.style.width = "2%";
+          newDiv.style.marginLeft="-1%";
+          newDiv.style.marginTop="-1%";
+          newDiv.style.top = "50%";
+          newDiv.style.left = "50%";
+          newDiv.style.position = "absolute";
+          document.body.insertBefore(newDiv, document.getElementById("msg"));
+        }
+      }
+      for(key in a){ //in a and b but different values
+        if(a[key] && b[key] && a[key]!=b[key]){
+          if(a[key]['Y'] >= 99){
+            a[key]['Y'] = 99;
+          }
+          if(a[key]['X'] >= 99){
+            a[key]['X'] = 99;
+          }
+          if(a[key]['Y'] <= 1){
+            a[key]['Y'] = 1;
+          }
+          if(a[key]['X'] <= 1){
+            a[key]['X'] = 1;
+          }
+          document.getElementById("player_"+key).style.top = (a[key]['Y'])+"%";
+          document.getElementById("player_"+key).style.left = (a[key]['X'])+"%";
+        }
+      }
+      for(key in b){ //in b and not in a
+        if(!a[key]){
+          document.body.removeChild(document.getElementById("player_"+key));
+        }
+      }
+    }
+    var accel = {
+      X:0,
+      Y:0
+    }
+    var pos = {
+      X:50,
+      Y:50
+    }
+    var oldclients = {};
+    var socket = new io.Socket(window.location.hostname,{
+      port:1337
+    }); 
+    socket.connect();
+    socket.on('connect', function(){
+      alert("Connected!");
+    }); 
+    socket.on('message', function(clients){
+      differences(clients, oldclients)
+      oldclients = clients;
+    });
+    socket.on('disconnect', function(){
+      alert("You were disconnected from the server.");
+    });
+    window.ondevicemotion = function(event) {
+      accel = {
+        X:event.accelerationIncludingGravity.x,
+        Y:0-event.accelerationIncludingGravity.y
+      }
+    }
+    setInterval(function(){
+      pos['X'] += accel['X'];
+      pos['Y'] += accel['Y'];
+      if(pos['Y'] < 0){
+        pos['Y'] = 0;
+      }
+      if(pos['X'] < 0){
+        pos['X'] = 0;
+      }
+      if(pos['Y'] > 100){
+        pos['Y'] = 100;
+      }
+      if(pos['X'] > 100){
+        pos['X'] = 100;
+      }
+      socket.send(JSON.stringify({
+        X:pos['X'],
+        Y:pos['Y']
+      }));
+    },10); 
+    </script>  
+  </head>
+  <body>
+    <div id="msg"></div>
+  </body>
+</html>
