@@ -11,9 +11,15 @@ console.log("Tilt! Server by @innoying (Luke Young).");
 console.log('Server Started...');
 
 server = http.createServer(function(req, res){
-    // your normal server code
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end(fs.readFileSync("App.html"));
+    if(req.url == "/"){
+        // your normal server code
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.end(fs.readFileSync("App.html"));
+    }else{
+        // your normal server code
+        res.writeHead(200, {'Content-Type': 'application/javascript'});
+        res.end(fs.readFileSync("phonegap.js"));
+    }
 });
 server.listen(1337);
 

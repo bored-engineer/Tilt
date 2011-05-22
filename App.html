@@ -73,27 +73,29 @@
     socket.on('disconnect', function(){
       alert("You were disconnected from the server.");
     });
-    window.ondevicemotion = function(event) {
-      accel = {
-        X:event.accelerationIncludingGravity.x,
-        Y:0-event.accelerationIncludingGravity.y
-      }
-    }
-    function onSuccess(acceleration) {
-        accel = {
-            X:acceleration.x*10,
-            Y:acceleration.y*10
+    try{
+        function onSuccess(acceleration) {
+            accel = {
+                X:acceleration.x*10,
+                Y:acceleration.y*10
+            }
+        };
+        
+        function onError() {};
+        
+        var options = { frequency: 100 }; 
+        var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+    }catch(e){
+        window.ondevicemotion = function(event) {
+            accel = {
+              X:event.accelerationIncludingGravity.x,
+              Y:0-event.accelerationIncludingGravity.y
+            }
         }
-    };
-    
-    function onError() {};
-    
-    var options = { frequency: 100 }; 
-    
-    var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+    }
     setInterval(function(){
-      pos['X'] += accel['X'];
-      pos['Y'] += accel['Y'];
+      pos['X'] += accel['X']*2;
+      pos['Y'] += accel['Y']*2;
       if(pos['Y'] < 0){
         pos['Y'] = 0;
       }
